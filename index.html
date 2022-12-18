@@ -37,12 +37,13 @@
         .photo {
             height: 150px;
             width: 105px;
-            padding: 15px 15px 30px 15px;
+            padding: 10px 10px 30px 10px;
             box-sizing: border-box;
             background-color: white;
             box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
             margin: 0 20px;
             transition: 3s all;
+            object-fit: cover;
         }
 
         .photo:hover {
@@ -198,10 +199,10 @@
         <div id="foots"></div>
         <div id="game" style="display: none;">
             <div id="player" class="game-actor">
-                <img src="./media/IMG_20221216_003529_031.jpg"/>
+                <img src="./media/media5.jpg"/>
             </div>
             <div id="nikita" class="game-actor">
-                <img src="./media/IMG_20221012_022027_053.jpg"/>
+                <img src="./media/nikita.jpg"/>
             </div>
             <div id="game-info">
                 <span id="game-label">Догоните Никиту</span>
@@ -209,7 +210,7 @@
             </div>
         </div>
         <div id="popup">
-            <img id="popup-img" src="./media/question mark.jpg">
+            <img id="popup-img" src="./media/media52.jpg">
             <span id="popup-label" style="display: none;">Твой приз лежит в сундуке со всеми богатствами мира</span>
             <div id="popup-password" style="display: none;">
                 <span>Ключ:</span>
@@ -222,7 +223,7 @@
 </body>
 </html>
 <script>
-    let photosIndex = 1, stepsAtRight = true, photosCount = 31, photosInRow = null, photoCounter = null, nikita = document.getElementById('nikita'), 
+    let photosIndex = 1, stepsAtRight = true, photosCount = 51, photosInRow = null, photoCounter = null, nikita = document.getElementById('nikita'), 
         player = document.getElementById('player'), nikitaInterval = null, gameOver = false, popup = document.getElementById('popup'), password = '23.02.2022';
     const playerStep = 10;
     const nikitaStep = 20;
@@ -259,25 +260,26 @@
 
             let photoName = `media${photoNumber}`;
             let image = document.createElement('img');
-            // image.src = './media/question mark.jpg';
-            image.src = './media/IMG_20221216_003529_031.jpg';
-            image.title = photoName;
-            image.className = 'photo';
+            image.src = `./media/${photoName}.jpg`;
             activeRow.appendChild(image);
+            image.className = 'photo';
 
-            if(photoIndex == photosCount - 1) {
+            image.onerror = function () {
+                image.src = `./media/${photoName}.gif`;
+            }
+
+            if(photoIndex == photosCount) {
+                image.className = '';
+                image.onclick = function () {
+                    switchElement(popup, true, true);
+                };
+            } else if(photoIndex == photosCount + 1) {
                 image.style.cursor = 'pointer';
                 image.onclick = function () {
                     document.getElementById('foots').style.display = 'none';
                     document.getElementById('game').style.display = 'block';
                     window.scrollTo(0, 0);
                     startGame();
-                };
-            }
-
-            if(photoIndex == photosCount - 2) {
-                image.onclick = function () {
-                    switchElement(popup, true, true);
                 };
             }
 
@@ -398,7 +400,6 @@
         });
 
         gameBtn.addEventListener('click', e => {
-            console.log(123);
             document.getElementById('foots').style.display = 'block';
             document.getElementById('game').style.display = 'none';
         });
@@ -476,4 +477,12 @@
             }
         }, 30);
     }
+
+    function UrlExists(url) 
+    { 
+        var http = new XMLHttpRequest(); 
+        http.open('HEAD', url, false); 
+        http.send(); 
+        return http.status!=404; 
+    } 
 </script>

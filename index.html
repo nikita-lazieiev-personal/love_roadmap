@@ -271,7 +271,9 @@
 </html>
 <script>
     let photosIndex = 1, stepsAtRight = true, photosCount = 51, photosInRow = null, photoCounter = null, nikita = document.getElementById('nikita'), 
-        player = document.getElementById('player'), nikitaInterval = null, gameOver = false, popup = document.getElementById('popup'), password = '23.02.2022';
+        player = document.getElementById('player'), playerInterval = null, nikitaInterval = null, gameOver = false, 
+        popup = document.getElementById('popup'), password = '23.02.2022', label = document.getElementById('game-label'), 
+        gameBtn = document.getElementById('game-btn'), gameInfo = document.getElementById('game-info');
     const playerStep = 10;
     const nikitaStep = 20;
 
@@ -425,11 +427,39 @@
                 mainBlock.appendChild(activeRow);
             }
 
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 1));
         }
     }
-    
+
     main();
+    
+    if(isMobile) {
+        function printMousePos(event) {
+            if(!gameOver) {
+                let coords = player.getBoundingClientRect();
+                clearInterval(playerInterval);
+                let direction = 'right';
+
+                if(event.clientY > (coords.top + player.offsetHeight)) {
+                    direction = 'bottom';
+                } else if(event.clientY < coords.top) {
+                    direction = 'top';
+                } else if(event.clientX <= coords.left) {
+                    direction = 'left';
+                } else if(event.clientX >= (coords.left + player.offsetWidth)) {
+                    direction = 'right';
+                }
+
+                playerInterval = setInterval(e => {
+                    console.log(coords.top);
+                    console.log(direction);
+                    handlePlayer(direction);
+                }, 20);
+            }
+        }
+
+        document.addEventListener("click", printMousePos);
+    }
 
     document.getElementById('close-btn').addEventListener('click', e => {
         switchElement(popup, false, true);
@@ -453,9 +483,6 @@
 
     function startGame() {
         gameOver = false;
-        let label = document.getElementById('game-label');
-        let gameBtn = document.getElementById('game-btn');
-        let gameInfo = document.getElementById('game-info');
         label.innerText = 'Догоните Никиту';
         document.getElementById('game-btn').style.display = 'none';
 
@@ -478,19 +505,7 @@
                 direction = 'right';
             }
 
-            moveActor(player, direction, playerStep);
-            checkActorBounds(player);
-            gameOver = isCollide(player, nikita);
-
-            if(gameOver) {
-                clearInterval(nikitaInterval);
-                label.innerText = `Ключ: ${password}`;
-                label.style.left = (window.innerWidth / 2) - (label.offsetWidth / 2);
-                gameBtn.style.display = 'block';
-                switchElement(gameInfo, true);
-                document.getElementById('popup-img').style.display = 'none';
-                document.getElementById('popup-password').style.display = 'flex';
-            }
+            handlePlayer(direction);
         });
 
         gameBtn.addEventListener('click', e => {
@@ -501,20 +516,37 @@
         runNikitaRun();
     }
 
+    function handlePlayer(direction) {
+        moveActor(player, direction, playerStep);
+        checkActorBounds(player);
+        gameOver = isCollide(player, nikita);
+
+        if(gameOver) {
+            clearInterval(playerInterval);
+            clearInterval(nikitaInterval);
+            label.innerText = `Ключ: ${password}`;
+            label.style.left = (window.innerWidth / 2) - (label.offsetWidth / 2);
+            gameBtn.style.display = 'block';
+            switchElement(gameInfo, true);
+            document.getElementById('popup-img').style.display = 'none';
+            document.getElementById('popup-password').style.display = 'flex';
+        }
+    }
+
     function checkActorBounds(actor) {
         let dir = null;
 
         if(actor.offsetLeft < 0) {
-            setActorPos(actor, 'left', 20);
+            setActorPos(actor, 'left', 0);
             dir = 'left';
         } else if(actor.offsetTop < 0) {
-            setActorPos(actor, 'top', 20);
+            setActorPos(actor, 'top', 0);
             dir = 'top';
         } else if ((actor.offsetLeft + actor.offsetWidth) >= window.innerWidth) {
-            setActorPos(actor, 'left', window.innerWidth - actor.offsetWidth - 20);
+            setActorPos(actor, 'left', window.innerWidth - actor.offsetWidth - 10);
             dir = 'right';
         } else if ((actor.offsetTop + actor.offsetHeight) >= window.innerHeight) {
-            setActorPos(actor, 'top', window.innerHeight - actor.offsetHeight - 20);
+            setActorPos(actor, 'top', window.innerHeight - actor.offsetHeight - 10);
             dir = 'bottom';
         }
 

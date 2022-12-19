@@ -341,6 +341,11 @@
                     };
                 } else if((!isMobile && photoIndex == (photosCount + 1)) || (isMobile && photoIndex == photosCount)) {
                     image.style.cursor = 'pointer';
+
+                    if(isMobile) {
+                        image.style.paddingBottom = '30px';
+                    }
+
                     image.onclick = function () {
                         document.getElementById('foots').style.display = 'none';
                         document.getElementById('game').style.display = 'block';
